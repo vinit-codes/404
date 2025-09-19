@@ -124,13 +124,33 @@ export default function LoginPage() {
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
 
+                  {/* Admin Demo Access */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-white/20" />
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-transparent text-gray-400">or</span>
+                    </div>
+                  </div>
+
+                  <motion.button
+                    onClick={() => router.push('/admin')}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all border-2 border-white/20 flex items-center justify-center space-x-2"
+                  >
+                    <Shield className="w-5 h-5" />
+                    <span>Login as Admin (Demo Access)</span>
+                  </motion.button>
+
                   {/* Quick access demo button */}
                   <div className="text-center">
                     <button
                       onClick={handleLogin}
                       className="text-gray-300 hover:text-white text-sm underline transition-colors"
                     >
-                      Demo Access (Skip Login)
+                      User Demo Access (Skip Login)
                     </button>
                   </div>
                 </div>
