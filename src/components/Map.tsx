@@ -416,58 +416,83 @@ export default function Map({ onSOSPress }: MapProps) {
     <div className="relative w-full h-screen">
       <MapComponent />
 
-      {/* Floating SOS Button */}
+      {/* Professional Emergency SOS Button */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.5 }}
-        className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-[1000]"
+        className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-[1000] flex flex-col items-center"
       >
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={onSOSPress}
-          className="relative w-20 h-20 bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-2xl flex items-center justify-center text-white font-bold text-lg overflow-hidden"
+          className="group relative w-24 h-24 bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-full shadow-2xl flex items-center justify-center text-white font-bold overflow-hidden border-4 border-white/30 backdrop-blur-sm"
         >
-          <Phone size={24} className="relative z-10" />
+          {/* Glass morphism effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full" />
           
-          {/* Pulsing ring animation */}
+          {/* Icon container */}
+          <div className="relative z-10 flex flex-col items-center">
+            <Phone size={24} className="mb-1 drop-shadow-lg" />
+            <span className="text-xs font-bold tracking-wide">SOS</span>
+          </div>
+          
+          {/* Animated outer ring */}
           <motion.div
             animate={{ 
-              scale: [1, 1.4, 1],
+              scale: [1, 1.6, 1],
+              opacity: [0.6, 0, 0.6]
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 2.5,
+              ease: "easeInOut"
+            }}
+            className="absolute inset-0 border-4 border-red-400 rounded-full"
+          />
+          
+          {/* Secondary pulse ring */}
+          <motion.div
+            animate={{ 
+              scale: [1, 1.3, 1],
               opacity: [0.8, 0, 0.8]
             }}
             transition={{ 
               repeat: Infinity, 
               duration: 2,
-              ease: "easeInOut"
+              ease: "easeInOut",
+              delay: 0.5
             }}
-            className="absolute inset-0 bg-red-500 rounded-full"
+            className="absolute inset-0 border-2 border-red-300 rounded-full"
           />
           
-          {/* Inner pulse */}
+          {/* Inner glow effect */}
           <motion.div
             animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [1, 0.5, 1]
+              scale: [0.9, 1.1, 0.9],
+              opacity: [0.3, 0.6, 0.3]
             }}
             transition={{ 
               repeat: Infinity, 
-              duration: 1.5,
+              duration: 1.8,
               ease: "easeInOut"
             }}
-            className="absolute inset-2 bg-red-400 rounded-full"
+            className="absolute inset-2 bg-gradient-to-br from-red-300 to-red-500 rounded-full blur-sm"
           />
         </motion.button>
         
-        {/* SOS Label */}
+        {/* Professional label with enhanced styling */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
-          className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium"
+          className="mt-3 bg-gradient-to-r from-gray-900/90 to-black/90 backdrop-blur-md text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-xl border border-white/10"
         >
-          Emergency SOS
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+            <span>Emergency Alert</span>
+          </div>
         </motion.div>
       </motion.div>
     </div>
