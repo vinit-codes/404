@@ -1,175 +1,425 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { AlertTriangle, CloudRain, Mountain, Zap, Clock, MapPin } from 'lucide-react';
-import Card from '@/components/ui/Card';
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Info, Shield, ChevronDown, MapPin, Clock, Filter } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
 
 interface Alert {
   id: string;
-  type: 'weather' | 'natural' | 'emergency';
   title: string;
   description: string;
-  location: string;
+  severity: 'high' | 'medium' | 'low';
+  type: 'flood' | 'rainfall' | 'fire' | 'power' | 'earthquake' | 'landslide' | 'weather';
+  icon: string;
   timestamp: string;
-  severity: 'low' | 'medium' | 'high';
-  icon: React.ComponentType<{ className?: string; }>;
+  location: string;
+  distance: string;
+  isActive: boolean;
 }
 
-const alerts: Alert[] = [
+// Mock alert data with realistic disaster scenarios for Himachal Pradesh
+const mockAlerts: Alert[] = [
   {
     id: '1',
-    type: 'weather',
-    title: 'Heavy Rainfall Expected',
-    description: 'Intense rainfall predicted in your area. Avoid outdoor activities and stay in covered areas.',
-    location: 'Current Location',
-    timestamp: '2 mins ago',
+    title: 'Flash Flood Warning',
+    description: 'Beas River water level rising rapidly. Immediate evacuation recommended for low-lying areas.',
     severity: 'high',
-    icon: CloudRain
+    type: 'flood',
+    icon: '🌊',
+    timestamp: '10 mins ago',
+    location: 'Kullu Valley',
+    distance: '2.3 km from your location',
+    isActive: true
   },
   {
     id: '2',
-    type: 'natural',
-    title: 'Flash Flood Risk Detected',
-    description: 'Flash flood warning issued for low-lying areas near Manali. Evacuate if necessary.',
-    location: 'Manali, HP',
-    timestamp: '15 mins ago',
+    title: 'Heavy Rainfall Alert',
+    description: 'Continuous rainfall expected for next 6 hours. Risk of landslides in hilly areas.',
     severity: 'high',
-    icon: Mountain
+    type: 'rainfall',
+    icon: '🌧️',
+    timestamp: '25 mins ago',
+    location: 'Shimla District',
+    distance: '0.5 km from your location',
+    isActive: true
   },
   {
     id: '3',
-    type: 'emergency',
-    title: 'Power Outage Alert',
-    description: 'Scheduled power maintenance from 2 PM to 6 PM. Plan accordingly.',
-    location: 'City Center',
-    timestamp: '1 hour ago',
+    title: 'Landslide Risk Zone',
+    description: 'Soil saturation detected. Avoid steep slopes and unstable terrain.',
     severity: 'medium',
-    icon: Zap
+    type: 'landslide',
+    icon: '⛰️',
+    timestamp: '1 hour ago',
+    location: 'Mall Road Area',
+    distance: '1.2 km from your location',
+    isActive: true
   },
   {
     id: '4',
-    type: 'weather',
-    title: 'High Wind Advisory',
-    description: 'Strong winds expected at hill stations. Secure loose objects and avoid tall structures.',
-    location: 'Hill Stations',
-    timestamp: '3 hours ago',
+    title: 'Power Outage Alert',
+    description: 'Electrical supply disrupted due to weather conditions. Backup power recommended.',
     severity: 'medium',
-    icon: CloudRain
+    type: 'power',
+    icon: '⚡',
+    timestamp: '2 hours ago',
+    location: 'Lower Bazaar',
+    distance: '0.8 km from your location',
+    isActive: false
+  },
+  {
+    id: '5',
+    title: 'Forest Fire Watch',
+    description: 'Dry conditions detected. Maintain fire safety protocols in forest areas.',
+    severity: 'low',
+    type: 'fire',
+    icon: '🔥',
+    timestamp: '4 hours ago',
+    location: 'Jakhu Hill',
+    distance: '3.1 km from your location',
+    isActive: false
+  },
+  {
+    id: '6',
+    title: 'Weather Advisory',
+    description: 'Temperature drop expected. Travelers advised to carry warm clothing.',
+    severity: 'low',
+    type: 'weather',
+    icon: '🌡️',
+    timestamp: '6 hours ago',
+    location: 'Rohtang Pass',
+    distance: '45 km from your location',
+    isActive: false
   }
 ];
 
+type FilterType = 'all' | 'high' | 'medium' | 'low';
+type SortType = 'newest' | 'closest';
+
 export default function AlertsPage() {
-  const getSeverityColor = (severity: Alert['severity']) => {
-    switch (severity) {
-      case 'low': return 'text-green-600 bg-green-50 border-green-200';
-      case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'high': return 'text-red-600 bg-red-50 border-red-200';
-    }
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [sortBy, setSortBy] = useState<SortType>('newest');
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+
+  // Helper function to parse timestamp for sorting
+  const parseTime = (timestamp: string): number => {
+    const value = parseInt(timestamp.match(/\d+/)?.[0] || '0');
+    if (timestamp.includes('min')) return value;
+    if (timestamp.includes('hour')) return value * 60;
+    return value * 1440; // days
   };
 
-  const getSeverityDot = (severity: Alert['severity']) => {
+  // Filter and sort alerts
+  const filteredAndSortedAlerts = useMemo(() => {
+    let filtered = mockAlerts;
+
+    // Apply severity filter
+    if (activeFilter !== 'all') {
+      filtered = filtered.filter(alert => alert.severity === activeFilter);
+    }
+
+    // Apply sorting
+    if (sortBy === 'newest') {
+      filtered = [...filtered].sort((a, b) => {
+        const timeA = parseTime(a.timestamp);
+        const timeB = parseTime(b.timestamp);
+        return timeA - timeB;
+      });
+    } else {
+      filtered = [...filtered].sort((a, b) => {
+        const distA = parseFloat(a.distance);
+        const distB = parseFloat(b.distance);
+        return distA - distB;
+      });
+    }
+
+    return filtered;
+  }, [activeFilter, sortBy]);
+
+  // Get severity styling
+  const getSeverityStyles = (severity: string) => {
     switch (severity) {
-      case 'low': return 'bg-green-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'high': return 'bg-red-500';
+      case 'high':
+        return {
+          badge: 'bg-gradient-to-r from-red-500 to-red-700 text-white shadow-lg',
+          card: 'from-red-50 to-red-100 border-red-200',
+          glow: 'shadow-red-200'
+        };
+      case 'medium':
+        return {
+          badge: 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white shadow-lg',
+          card: 'from-yellow-50 to-yellow-100 border-yellow-200',
+          glow: 'shadow-yellow-200'
+        };
+      case 'low':
+        return {
+          badge: 'bg-gradient-to-r from-green-400 to-green-600 text-white shadow-lg',
+          card: 'from-green-50 to-green-100 border-green-200',
+          glow: 'shadow-green-200'
+        };
+      default:
+        return {
+          badge: 'bg-gradient-to-r from-gray-400 to-gray-600 text-white shadow-lg',
+          card: 'from-gray-50 to-gray-100 border-gray-200',
+          glow: 'shadow-gray-200'
+        };
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="max-w-md mx-auto bg-gradient-to-br from-blue-50 via-white to-slate-50 min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-slate-100 px-6 py-4">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="text-2xl font-bold text-slate-900">Safety Alerts</h1>
-          <p className="text-slate-600 text-sm mt-1">Stay informed about risks in your area</p>
-        </motion.div>
-      </div>
-
-      {/* Alerts Summary */}
-      <div className="px-6 py-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-4 text-white mb-6"
-        >
+      <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-4">
+        <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <AlertTriangle className="w-6 h-6" />
+            <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
+              <Shield className="w-5 h-5 text-white" />
+            </div>
             <div>
-              <h3 className="font-semibold">Active High Priority Alerts</h3>
-              <p className="text-red-100 text-sm">2 alerts require immediate attention</p>
+              <h1 className="text-xl font-bold text-slate-900">Safety Alerts</h1>
+              <p className="text-xs text-slate-500">Real-time emergency updates</p>
             </div>
           </div>
-        </motion.div>
+          <button
+            onClick={() => setShowInfoModal(true)}
+            className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center hover:bg-slate-200 transition-colors"
+          >
+            <Info className="w-4 h-4 text-slate-600" />
+          </button>
+        </div>
+      </div>
+
+      {/* Filter Controls */}
+      <div className="px-6 py-4 space-y-4">
+        {/* Severity Filter Pills */}
+        <div className="flex items-center space-x-2 overflow-x-auto pb-2">
+          <span className="text-sm font-medium text-slate-600 whitespace-nowrap">Filter:</span>
+          {(['all', 'high', 'medium', 'low'] as FilterType[]).map((filter) => (
+            <motion.button
+              key={filter}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setActiveFilter(filter)}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                activeFilter === filter
+                  ? filter === 'high'
+                    ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
+                    : filter === 'medium'
+                    ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white shadow-lg'
+                    : filter === 'low'
+                    ? 'bg-gradient-to-r from-green-400 to-green-500 text-white shadow-lg'
+                    : 'bg-gradient-to-r from-slate-600 to-slate-700 text-white shadow-lg'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {filter.charAt(0).toUpperCase() + filter.slice(1)}
+              {filter !== 'all' && (
+                <span className="ml-1 text-xs opacity-75">
+                  {mockAlerts.filter(a => a.severity === filter).length}
+                </span>
+              )}
+            </motion.button>
+          ))}
+        </div>
+
+        {/* Sort Control */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Filter className="w-4 h-4 text-slate-500" />
+            <span className="text-sm text-slate-600">
+              {filteredAndSortedAlerts.length} alert{filteredAndSortedAlerts.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="relative">
+            <button
+              onClick={() => setShowSortDropdown(!showSortDropdown)}
+              className="flex items-center space-x-2 px-3 py-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+            >
+              <span className="text-sm text-slate-600">
+                {sortBy === 'newest' ? 'Newest First' : 'Closest First'}
+              </span>
+              <ChevronDown className="w-4 h-4 text-slate-500" />
+            </button>
+            
+            <AnimatePresence>
+              {showSortDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute right-0 top-12 bg-white rounded-xl shadow-2xl border border-slate-200 py-2 min-w-[140px] z-50"
+                >
+                  {(['newest', 'closest'] as SortType[]).map((sort) => (
+                    <button
+                      key={sort}
+                      onClick={() => {
+                        setSortBy(sort);
+                        setShowSortDropdown(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 transition-colors ${
+                        sortBy === sort ? 'text-blue-600 font-medium' : 'text-slate-700'
+                      }`}
+                    >
+                      {sort === 'newest' ? 'Newest First' : 'Closest First'}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
 
       {/* Alerts List */}
-      <div className="px-6 space-y-4">
-        {alerts.map((alert, index) => {
-          const Icon = alert.icon;
-          return (
+      <div className="px-6 pb-24 space-y-4">
+        <AnimatePresence mode="popLayout">
+          {filteredAndSortedAlerts.length === 0 ? (
             <motion.div
-              key={alert.id}
+              key="empty-state"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="text-center py-12"
             >
-              <Card hover className={`border-l-4 ${getSeverityColor(alert.severity).split(' ')[2]}`}>
-                <div className="flex items-start space-x-4">
-                  {/* Icon */}
-                  <div className={`p-2 rounded-lg ${getSeverityColor(alert.severity)}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <h3 className="font-semibold text-slate-900 text-sm">{alert.title}</h3>
-                      <div className="flex items-center space-x-2 ml-2">
-                        <div className={`w-2 h-2 rounded-full ${getSeverityDot(alert.severity)}`} />
-                        <span className="text-xs text-slate-500 whitespace-nowrap">{alert.timestamp}</span>
-                      </div>
-                    </div>
-                    
-                    <p className="text-slate-600 text-sm mt-1 leading-relaxed">
-                      {alert.description}
-                    </p>
-                    
-                    <div className="flex items-center space-x-4 mt-3 text-xs text-slate-500">
-                      <div className="flex items-center space-x-1">
-                        <MapPin className="w-3 h-3" />
-                        <span>{alert.location}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Clock className="w-3 h-3" />
-                        <span>{alert.timestamp}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
+              <div className="w-20 h-20 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">✅</span>
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">You&apos;re Safe!</h3>
+              <p className="text-slate-600 text-sm max-w-[250px] mx-auto">
+                No current alerts in your area. We&apos;ll notify you if anything changes.
+              </p>
             </motion.div>
-          );
-        })}
+          ) : (
+            filteredAndSortedAlerts.map((alert, index) => {
+              const styles = getSeverityStyles(alert.severity);
+              return (
+                <motion.div
+                  key={alert.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`bg-gradient-to-r ${styles.card} border rounded-2xl p-5 shadow-lg ${styles.glow} hover:shadow-xl transition-all cursor-pointer`}
+                >
+                  <div className="flex items-start space-x-4">
+                    {/* Alert Icon */}
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-white rounded-xl shadow-md flex items-center justify-center">
+                        <span className="text-2xl">{alert.icon}</span>
+                      </div>
+                    </div>
+
+                    {/* Alert Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-bold text-slate-900 text-base leading-tight">
+                          {alert.title}
+                        </h3>
+                        <motion.div
+                          animate={alert.severity === 'high' && alert.isActive ? {
+                            scale: [1, 1.1, 1],
+                            opacity: [1, 0.8, 1]
+                          } : {}}
+                          transition={{ 
+                            repeat: alert.severity === 'high' && alert.isActive ? Infinity : 0,
+                            duration: 2
+                          }}
+                          className={`px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap ${styles.badge}`}
+                        >
+                          {alert.severity.toUpperCase()}
+                        </motion.div>
+                      </div>
+                      
+                      <p className="text-sm text-slate-700 mb-3 line-clamp-2">
+                        {alert.description}
+                      </p>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2 text-xs text-slate-600">
+                          <Clock className="w-3 h-3" />
+                          <span>{alert.timestamp}</span>
+                          {alert.isActive && (
+                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse ml-1"></div>
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2 text-xs text-slate-600">
+                          <MapPin className="w-3 h-3" />
+                          <span>{alert.location} • {alert.distance}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Empty State for No More Alerts */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="px-6 py-8 text-center"
-      >
-        <div className="text-slate-400 mb-2">
-          <AlertTriangle className="w-12 h-12 mx-auto opacity-50" />
-        </div>
-        <p className="text-slate-500 text-sm">No more alerts at this time</p>
-        <p className="text-slate-400 text-xs mt-1">We&apos;ll notify you of any new safety updates</p>
-      </motion.div>
+      {/* Info Modal */}
+      <AnimatePresence>
+        {showInfoModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50"
+            onClick={() => setShowInfoModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+            >
+              <div className="text-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                  <Info className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Alert Severity Levels</h3>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-4 h-4 bg-gradient-to-r from-red-500 to-red-700 rounded-full"></div>
+                  <div>
+                    <span className="font-semibold text-red-700">HIGH</span>
+                    <p className="text-xs text-slate-600">Immediate action required</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-4 h-4 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full"></div>
+                  <div>
+                    <span className="font-semibold text-yellow-700">MEDIUM</span>
+                    <p className="text-xs text-slate-600">Caution advised</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-4 h-4 bg-gradient-to-r from-green-400 to-green-600 rounded-full"></div>
+                  <div>
+                    <span className="font-semibold text-green-700">LOW</span>
+                    <p className="text-xs text-slate-600">Advisory information</p>
+                  </div>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => setShowInfoModal(false)}
+                className="w-full mt-6 bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3 rounded-xl font-semibold hover:from-slate-700 hover:to-slate-800 transition-all"
+              >
+                Got it
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
+      {/* Bottom Navigation */}
       <BottomNavigation />
     </div>
   );

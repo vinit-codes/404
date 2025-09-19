@@ -1,9 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Home, AlertTriangle, Phone, User } from 'lucide-react';
+import { Home, AlertTriangle, Phone, User, Download } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
 
 const navItems = [
   { icon: User, label: 'Login', href: '/' },
@@ -14,6 +20,53 @@ const navItems = [
 
 export default function BottomNavigation() {
   const pathname = usePathname();
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    // Check if app is already installed
+    const checkInstalled = () => {
+      // @ts-expect-error - navigator.standalone is iOS specific
+      const isIOSInstalled = window.navigator.standalone === true;
+      const isAndroidInstalled = window.matchMedia('(display-mode: standalone)').matches;
+      setIsInstalled(isIOSInstalled || isAndroidInstalled);
+    };
+
+    checkInstalled();
+
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      setIsInstallable(true);
+    };
+
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      setIsInstallable(false);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+      setIsInstallable(false);
+    }
+  };
 
   return (
     <motion.nav
@@ -48,6 +101,20 @@ export default function BottomNavigation() {
             </Link>
           );
         })}
+        
+        {/* PWA Install Button */}
+        {isInstallable && !isInstalled && (
+          <motion.button
+            onClick={handleInstallClick}
+            whileTap={{ scale: 0.95 }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="flex flex-col items-center py-2 px-3 rounded-xl transition-colors text-green-600 hover:text-green-700 hover:bg-green-50"
+          >
+            <Download size={20} />
+            <span className="text-xs mt-1 font-medium">Install</span>
+          </motion.button>
+        )}
       </div>
     </motion.nav>
   );
