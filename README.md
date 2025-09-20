@@ -1,4 +1,4 @@
-# SafeTour - Tourist Safety & Disaster Management App
+# SafeNav - Tourist Safety & Disaster Management App
 
 A mobile-first web application built with Next.js 13+, designed to help tourists stay safe during their travels through real-time safety monitoring and emergency management features.
 
@@ -69,7 +69,7 @@ A mobile-first web application built with Next.js 13+, designed to help tourists
 
    ```bash
    git clone <repository-url>
-   cd safetour-app
+   cd safenav-app
    ```
 
 2. Install dependencies:

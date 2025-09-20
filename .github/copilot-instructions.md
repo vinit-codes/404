@@ -1,6 +1,6 @@
 <!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
 
-# SafeTour - Tourist Safety & Disaster Management App
+# SafeNav - Tourist Safety & Disaster Management App
 
 This is a mobile-first Next.js web application focused on tourist safety and disaster management.
 

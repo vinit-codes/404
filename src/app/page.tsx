@@ -76,7 +76,7 @@ export default function LoginPage() {
               </div>
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent mb-3">
-              SafeTour
+              SafeNav
             </h1>
             <p className="text-gray-300 text-lg font-medium">Emergency Response System</p>
             <p className="text-gray-400 text-sm mt-1">Your Safety Companion on Every Journey</p>
@@ -110,7 +110,7 @@ export default function LoginPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="emergency@safetour.com"
+                      placeholder="emergency@safenav.com"
                       className="w-full px-5 py-4 rounded-2xl bg-white/20 border border-white/30 focus:ring-2 focus:ring-red-400 focus:border-transparent outline-none transition-all text-white placeholder-gray-300 backdrop-blur-sm"
                     />
                   </div>

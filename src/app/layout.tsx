@@ -4,15 +4,15 @@ import "leaflet/dist/leaflet.css";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 export const metadata: Metadata = {
-  title: "DisasterSOS - Emergency Alert System",
+  title: "SafeNav - Emergency Alert System",
   description: "Emergency disaster alert and SOS system for tourist safety and disaster management",
-  applicationName: "DisasterSOS",
-  authors: [{ name: "SafeTour Team" }],
+  applicationName: "SafeNav",
+  authors: [{ name: "SafeNav Team" }],
   generator: "Next.js",
   keywords: ["emergency", "disaster", "SOS", "safety", "alerts", "tourism", "rescue"],
   referrer: "origin-when-cross-origin",
-  creator: "SafeTour Team",
-  publisher: "SafeTour",
+  creator: "SafeNav Team",
+  publisher: "SafeNav",
   formatDetection: {
     email: false,
     address: false,
@@ -28,13 +28,13 @@ export const metadata: Metadata = {
     url: 'https://your-app-url.vercel.app',
     title: 'DisasterSOS - Emergency Alert System',
     description: 'Emergency disaster alert and SOS system for tourist safety and disaster management',
-    siteName: 'DisasterSOS',
+    siteName: 'SafeNav',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'DisasterSOS - Emergency Alert System',
+    title: 'SafeNav - Emergency Alert System',
     description: 'Emergency disaster alert and SOS system for tourist safety and disaster management',
-    creator: '@safetour',
+    creator: '@safenav',
   },
   manifest: '/manifest.json',
   icons: {

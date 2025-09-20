@@ -1,6 +1,6 @@
 {
-  "name": "DisasterSOS - Emergency Alert System",
-  "short_name": "DisasterSOS",
+  "name": "SafeNav - Emergency Alert System",
+  "short_name": "SafeNav",
   "description": "Emergency disaster alert and SOS system for tourist safety and disaster management",
   "start_url": "/",
   "display": "standalone",

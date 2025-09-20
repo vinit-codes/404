@@ -213,7 +213,7 @@ export const mockUsers: User[] = [
   {
     id: 'USR-003',
     name: 'Admin User',
-    email: 'admin@safetour.com',
+    email: 'admin@safenav.com',
     role: 'admin',
     status: 'active',
     joinDate: '2023-12-01',
@@ -235,7 +235,7 @@ export const mockUsers: User[] = [
   {
     id: 'USR-005',
     name: 'Moderator Singh',
-    email: 'mod@safetour.com',
+    email: 'mod@safenav.com',
     role: 'moderator',
     status: 'active',
     joinDate: '2024-01-01',

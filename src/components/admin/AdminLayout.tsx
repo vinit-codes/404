@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-red-600 rounded-lg flex items-center justify-center">
                   <Shield className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-gray-900">SafeTour Admin</span>
+                <span className="text-xl font-bold text-gray-900">SafeNav Admin</span>
               </div>
             </div>
 
@@ -93,7 +93,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-red-600 rounded-lg flex items-center justify-center">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">SafeTour Admin</span>
+            <span className="text-xl font-bold text-gray-900">SafeNav Admin</span>
           </div>
         </div>
 
@@ -132,7 +132,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {/* Footer */}
           <div className="p-4 border-t border-gray-200">
             <div className="text-xs text-gray-500 text-center">
-              SafeTour Admin Dashboard
+              SafeNav Admin Dashboard
               <br />
               Emergency Management System
             </div>

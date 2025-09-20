@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Generate PWA icons using ImageMagick
-# This script creates professional SafeTour app icons with gradient background
+# This script creates professional SafeNav app icons with gradient background
 
 # Create a simple SVG template first
-cat > /tmp/safetour_icon.svg << 'EOF'
+cat > /tmp/safenav_icon.svg << 'EOF'
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -29,14 +29,14 @@ cat > /tmp/safetour_icon.svg << 'EOF'
 EOF
 
 # Convert SVG to different sizes
-convert /tmp/safetour_icon.svg -resize 192x192 /Users/apple/Desktop/Personal/404/public/icons/icon-192x192.png
-convert /tmp/safetour_icon.svg -resize 512x512 /Users/apple/Desktop/Personal/404/public/icons/icon-512x512.png
-convert /tmp/safetour_icon.svg -resize 180x180 /Users/apple/Desktop/Personal/404/public/icons/apple-touch-icon.png
-convert /tmp/safetour_icon.svg -resize 32x32 /Users/apple/Desktop/Personal/404/public/icons/favicon-32x32.png
-convert /tmp/safetour_icon.svg -resize 16x16 /Users/apple/Desktop/Personal/404/public/icons/favicon-16x16.png
+convert /tmp/safenav_icon.svg -resize 192x192 /Users/apple/Desktop/Personal/404/public/icons/icon-192x192.png
+convert /tmp/safenav_icon.svg -resize 512x512 /Users/apple/Desktop/Personal/404/public/icons/icon-512x512.png
+convert /tmp/safenav_icon.svg -resize 180x180 /Users/apple/Desktop/Personal/404/public/icons/apple-touch-icon.png
+convert /tmp/safenav_icon.svg -resize 32x32 /Users/apple/Desktop/Personal/404/public/icons/favicon-32x32.png
+convert /tmp/safenav_icon.svg -resize 16x16 /Users/apple/Desktop/Personal/404/public/icons/favicon-16x16.png
 
 # Create maskable icon (slightly different design)
-cat > /tmp/safetour_maskable.svg << 'EOF'
+cat > /tmp/safenav_maskable.svg << 'EOF'
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -57,10 +57,10 @@ cat > /tmp/safetour_maskable.svg << 'EOF'
 </svg>
 EOF
 
-convert /tmp/safetour_maskable.svg -resize 192x192 /Users/apple/Desktop/Personal/404/public/icons/maskable-icon-192x192.png
-convert /tmp/safetour_maskable.svg -resize 512x512 /Users/apple/Desktop/Personal/404/public/icons/maskable-icon-512x512.png
+convert /tmp/safenav_maskable.svg -resize 192x192 /Users/apple/Desktop/Personal/404/public/icons/maskable-icon-192x192.png
+convert /tmp/safenav_maskable.svg -resize 512x512 /Users/apple/Desktop/Personal/404/public/icons/maskable-icon-512x512.png
 
 # Clean up temp files
-rm /tmp/safetour_icon.svg /tmp/safetour_maskable.svg
+rm /tmp/safenav_icon.svg /tmp/safenav_maskable.svg
 
 echo "✅ PWA icons generated successfully!"
